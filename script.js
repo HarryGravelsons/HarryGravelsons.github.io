@@ -77,14 +77,18 @@
 
     var sections = document.querySelectorAll("main section");
 
+    // rootMargin pulls the trigger line in a bit from the bottom edge of the
+    // screen. Without this, a section can flicker in/out right as a sliver
+    // of it crosses the literal edge; this gives it a small buffer so the
+    // fade starts just before that, instead of exactly on the hairline.
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target); // fade in once, then leave it alone
-        }
+        // Keep toggling the class both ways, every time: add it when the
+        // section comes into view, remove it when it leaves. That's what
+        // makes the fade replay instead of only ever happening once.
+        entry.target.classList.toggle("is-visible", entry.isIntersecting);
       });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.15, rootMargin: "0px 0px -10% 0px" });
 
     sections.forEach(function (section) {
       observer.observe(section);
